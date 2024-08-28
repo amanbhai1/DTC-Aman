@@ -2,36 +2,36 @@ import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const RouteDetails = () => {
+const Routes = () => {
   const [routeNumber, setRouteNumber] = useState('');
   const [busDetails, setBusDetails] = useState(null);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSearch = () => {
-    // Mock data for demonstration
-    const mockData = {
-      routeNumber: '123',
-      serviceProvider: 'XYZ Transport',
-      origin: 'Downtown',
-      destination: 'Uptown',
-      busStops: [
-        { name: 'Stop 1', position: [51.505, -0.09] },
-        { name: 'Stop 2', position: [51.515, -0.1] },
-        { name: 'Stop 3', position: [51.525, -0.11] },
-      ],
-      routePath: [
-        [51.505, -0.09],
-        [51.515, -0.1],
-        [51.525, -0.11],
-      ],
-    };
+  const handleSearch = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await axios.get(`http://localhost:9002/api/routes/${routeNumber}`);
+      const data = response.data;
 
-    if (routeNumber === '123') { // Example condition for mock data
-      setBusDetails(mockData);
-    } else {
-      alert('No details found for this route.');
+      // Transform data to match expected format
+      const transformedData = {
+        routeNumber: data.route_short_name,
+        serviceProvider: 'DTC', // Static value or replace with actual data if available
+        origin: data.route_name || 'Origin Placeholder', // First bus stop as origin
+        destination: data.bus_stops[data.bus_stops.length - 1] || 'Destination Placeholder', // Last bus stop as destination
+        busStops: data.bus_stops.map(stop => ({ name: stop, position: [/* Add actual coordinates here if available */] })),
+        routePath: [], // Add logic to populate route path if available
+      };
+      setBusDetails(transformedData);
+    } catch (err) {
+      setError('No details found for this route.');
+      setBusDetails(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,10 +58,14 @@ const RouteDetails = () => {
             onClick={handleSearch}
             className="mt-2 p-2 bg-blue-600 rounded text-white w-full transition-transform transform hover:scale-105"
           >
-            Search
+            {loading ? 'Loading...' : 'Search'}
           </button>
         </div>
-        
+
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
+
         {busDetails && (
           <motion.div
             initial={{ opacity: 0, x: -100 }}
@@ -71,8 +75,8 @@ const RouteDetails = () => {
           >
             <h3 className="text-xl font-semibold mb-2">Details for Route {busDetails.routeNumber}</h3>
             <p><strong>Service Provider:</strong> {busDetails.serviceProvider}</p>
-            <p><strong>Origin:</strong> {busDetails.origin}</p>
-            <p><strong>Destination:</strong> {busDetails.destination}</p>
+            <p><strong>Route Name:</strong> {busDetails.origin}</p>
+            <p><strong>Last Stop:</strong> {busDetails.destination}</p>
             <p><strong>Bus Stops:</strong></p>
             <ul className="list-disc ml-6">
               {busDetails.busStops.map((stop, index) => (
@@ -92,13 +96,13 @@ const RouteDetails = () => {
       {busDetails && (
         <div className="w-full lg:w-1/2 p-4 relative z-0">
           <div className="absolute inset-0">
-            <MapContainer center={busDetails.busStops[0].position} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <MapContainer center={[28.6139, 77.2090]} zoom={13} style={{ height: '100%', width: '100%' }}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
               {busDetails.busStops.map((stop, index) => (
-                <Marker key={index} position={stop.position}>
+                <Marker key={index} position={[28.6139, 77.2090]}> {/* Replace with actual stop coordinates */}
                   <Popup>{stop.name}</Popup>
                 </Marker>
               ))}
@@ -111,4 +115,4 @@ const RouteDetails = () => {
   );
 };
 
-export default RouteDetails;
+export default Routes;

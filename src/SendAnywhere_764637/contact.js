@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import ReactDOM from "react-dom/client";
+import './index.css';
+import Contact from '../pages/Contact';
 
 const Contact = () => {
   const [name, setName] = useState('');
@@ -29,14 +32,13 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'url("https://media.istockphoto.com/id/1652672359/photo/in-the-bus-running-in-the-city-of-kollam-india.jpg?s=2048x2048&w=is&k=20&c=PG_9Nt2lEkVtBBFQN4VB2ocvzDgJvqZuIPnJz-xBrcQ=")' }}>
-      <div className="absolute inset-0 bg-black opacity-70"></div> {/* Background overlay */}
-      <div className="relative max-w-lg w-full bg-white bg-opacity-10 backdrop-blur-lg border border-gray-200 rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-white mb-6 hover:text-indigo-300">Contact Us</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#1F2937] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-lg w-full bg-white p-8 border border-gray-200 rounded-lg shadow-lg">
+        <h2 className="text-3xl font-bold text-center text-[#4338CA] mb-6 hover:text-indigo-500">Contact Us</h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             <div> 
-              <label htmlFor="name" className="block text-sm font-medium text-gray-100">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Name
               </label>
               <input
@@ -46,11 +48,11 @@ const Contact = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-md bg-transparent text-white"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-100">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
               </label>
               <input
@@ -60,11 +62,11 @@ const Contact = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-md bg-transparent text-white"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-100">
+              <label htmlFor="message" className="block text-sm font-medium text-gray-700">
                 Message
               </label>
               <textarea
@@ -74,7 +76,7 @@ const Contact = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-md bg-transparent text-white"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ></textarea>
             </div>
             <div>
@@ -116,4 +118,5 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+
+export default Contact

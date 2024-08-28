@@ -73,6 +73,16 @@ function Navbar() {
           >
             Blogs
           </NavLink>
+          <NavLink
+            to="/booking"
+            className={({ isActive }) =>
+              `text-white px-3 py-2 rounded-md text-sm font-medium ${
+                isActive ? 'bg-blue-700' : 'hover:bg-gray-700'
+              }`
+            }
+          >
+            Booking
+          </NavLink>
         </div>
 
         <div>
