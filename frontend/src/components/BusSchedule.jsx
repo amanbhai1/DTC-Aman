@@ -24,7 +24,7 @@ const RouteDetails = () => {
       // Transform data to match expected format
       const transformedData = {
         routeId: data.route_short_name,
-        origin: data.route_name || 'Origin Placeholder',
+        route_name: data.route_name || 'Origin Placeholder',
         destination: data.bus_stops[data.bus_stops.length - 1] || 'Destination Placeholder',
         busStops: data.bus_stops || [],
       };
@@ -56,7 +56,7 @@ const RouteDetails = () => {
         <div className="mt-4 p-4 bg-gray-700 rounded-md transition-opacity duration-500 ease-in-out opacity-100">
           <h3 className="text-xl font-semibold mb-2">Bus Details:</h3>
           <p><strong>Route ID:</strong> {routeDetails.routeId}</p>
-          <p><strong>Route Name:</strong> {routeDetails.route_name}</p>
+          <p><strong>Route Name:</strong> {routeDetails.route_short_name}</p>
           <p><strong>Destination:</strong> {routeDetails.destination}</p>
           <p><strong>Bus Stops:</strong></p>
           <ul className="list-disc ml-6">

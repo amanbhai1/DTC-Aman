@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaBus, FaMapMarkerAlt, FaCalendarAlt, FaRupeeSign } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';
 import Marquee from 'react-marquee-slider';
 
 const TripPlanner = () => {
@@ -34,11 +35,10 @@ const TripPlanner = () => {
         <div className="flex flex-wrap gap-4 space-y-4 md:space-y-0 md:space-x-4 mb-4">
           <div className="w-full md:w-1/3  p-4">
             <label className="block text-sm font-medium text-gray-700 flex items-center mb-4">
-            <FaMapMarkerAlt className="mr-2 text-blue-700" size={24} />
-            From
+              <FaMapMarkerAlt className="mr-2 text-blue-700" size={24} />
+              From
             </label>
             <input
-    
               type="text"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
@@ -95,7 +95,9 @@ const TripPlanner = () => {
                 <p className="font-bold text-indigo-600 flex items-center">
                   <FaRupeeSign className="mr-1" /> {bus.price}
                 </p>
-                <button className="text-blue-500 hover:underline">Book Now</button>
+                <NavLink to={`/booking/${bus.route}`} className="text-blue-500 hover:underline">
+                  Book Now
+                </NavLink>
               </div>
             </div>
           ))
@@ -109,7 +111,7 @@ const TripPlanner = () => {
         Top Bus Routes
       </h3>
       <div className="mt-2">
-        <Marquee velocity={180} minScale={0.7} resetAfterTries={200}>
+        <Marquee velocity={80} minScale={0.7} resetAfterTries={200}>
           {popularRoutes.map((route, index) => (
             <div
               key={index}
@@ -124,7 +126,9 @@ const TripPlanner = () => {
                 <p className="font-bold text-indigo-600 flex items-center">
                   <FaRupeeSign className="mr-1" /> {route.price}
                 </p>
-                <button className="text-blue-500 hover:underline">Book Now</button>
+                <NavLink to={`/booking`} className="text-blue-500 hover:underline">
+                  Book Now
+                </NavLink>
               </div>
             </div>
           ))}

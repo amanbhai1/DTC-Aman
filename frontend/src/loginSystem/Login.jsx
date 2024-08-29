@@ -94,9 +94,11 @@ const LoginForm = ({ navigate }) => {
                     className="w-full p-3 border border-gray-700 bg-gray-900 text-white rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
             </div>
-            <div className="text-right">
-                <NavLink to="/forgot" className="text-blue-400">Forgot password?</NavLink>
+            <div className="text-right flex justify-between">
+                <NavLink to="/crew" className="text-blue-400">For Crew Login</NavLink>
+                <NavLink to="/forgot" className="text-orange-400">Forgot password?</NavLink>
             </div>
+            
             <div>
                 <button
                     type="submit"
@@ -105,6 +107,7 @@ const LoginForm = ({ navigate }) => {
                     Login
                 </button>
             </div>
+
         </form>
     );
 };

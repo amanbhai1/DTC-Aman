@@ -52,7 +52,7 @@ const Services = () => {
           </div>
           <div className="relative">
             <img
-              src="https://images.ctfassets.net/17si5cpawjzf/2ZYViDrLSFGHn4Bvl8ljqG/4e74a311310ec9385994346085d6d9b7/img60-create-maintain-bill-of-process-r2-tc-1200x600.jpg"
+              src="https://cdn-ecfmp.nitrocdn.com/eKSHMcFnhLzJYEGkCjZGYQYZkFApplfz/assets/images/optimized/rev-4adc157/www.smallbusinesscoach.org/wp-content/uploads/2022/06/1-1.png"
               alt="Easy Planning"
               className="w-full h-48 object-cover rounded-lg shadow-md transition-transform duration-500 hover:scale-105"
             />

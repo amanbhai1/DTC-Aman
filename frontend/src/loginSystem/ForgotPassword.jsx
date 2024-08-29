@@ -116,7 +116,7 @@ const ForgotPassword = () => {
                 <span className="relative z-10">Verify OTP</span>
               </button>
               <div className="text-sm text-gray-400 mt-4">
-                <NavLink to="/forgot" className="text-blue-400 hover:underline">Back to Forgot Password</NavLink>
+                <NavLink to="/forgot-password" className="text-blue-400 hover:underline">Back to Forgot Password</NavLink>
               </div>
             </form>
           )}

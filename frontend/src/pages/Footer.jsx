@@ -27,8 +27,8 @@ function Footer() {
             <li><NavLink to="/about" className="hover:underline">About Us</NavLink></li>
             <li><NavLink to="/leadership" className="hover:underline">Leadership</NavLink></li>
             <li><NavLink to="/careers" className="hover:underline">Careers</NavLink></li>
-            <li><NavLink to="/articles-news" className="hover:underline">Article & News</NavLink></li>
-            <li><NavLink to="/legal-notice" className="hover:underline">Legal Notice</NavLink></li>
+            <li><NavLink to="/blogs" className="hover:underline">Blogs</NavLink></li>
+            <li><NavLink to="/passengerFeedback" className="hover:underline">Passenger Feedback</NavLink></li>
           </ul>
         </div>
 
@@ -40,7 +40,7 @@ function Footer() {
             <li><NavLink to="/services" className="hover:underline">Schedule on Time</NavLink></li>
             <li><NavLink to="/booking" className="hover:underline">Online Booking</NavLink></li>
             <li><NavLink to="/professional-staff" className="hover:underline">Professional Staff</NavLink></li>
-            <li><NavLink to="/faq-support" className="hover:underline">FAQ & Support</NavLink></li>
+            <li><NavLink to="/faq" className="hover:underline">FAQ & Support</NavLink></li>
           </ul>
         </div>
 

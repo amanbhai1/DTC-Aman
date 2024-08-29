@@ -46,6 +46,86 @@ const otpSchema = new mongoose.Schema({
 });
 
 const OTP = mongoose.model("OTP", otpSchema);
+
+const StopSchema = new mongoose.Schema({
+    stop_code: String,
+    stop_id: String,
+    stop_lat: String,
+    stop_lon: String,
+    stop_name: String,
+    zone_id: String,
+  });
+  
+  const StopTimeSchema = new mongoose.Schema({
+    trip_id: String,
+    arrival_time: String,
+    departure_time: String,
+    stop_id: String,
+    stop_sequence: String,
+  });
+  
+  const Stop = mongoose.model('Stop', StopSchema);
+  const StopTime = mongoose.model('StopTime', StopTimeSchema);
+  
+  const busStopSchema = new mongoose.Schema({
+    name: String,
+    location: {
+      type: { type: String },
+      coordinates: [Number],
+    },
+    routes: [String],
+  });
+  
+  busStopSchema.index({ location: '2dsphere' });
+  
+  const BusStop = mongoose.model('BusStop', busStopSchema);
+  
+  // API to get nearby bus stops within a 300-meter radius
+  app.get('/api/bus-stops/nearby', async (req, res) => {
+    const { lat, lng, radius } = req.query;
+    const maxDistance = parseFloat(radius) || 300;
+  
+    try {
+      const busStops = await BusStop.find({
+        location: {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], maxDistance / 6378.1],
+          },
+        },
+      });
+      res.json(busStops);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // API endpoint to get ETA details
+  app.get('/api/eta', async (req, res) => {
+    const { stop_name } = req.query;
+  
+    if (!stop_name) {
+      return res.status(400).json({ error: 'Stop name is required' });
+    }
+  
+    try {
+      // Find the stop by name
+      const stop = await Stop.findOne({ stop_name: new RegExp(stop_name, 'i') });
+  
+      if (!stop) {
+        return res.status(404).json({ error: 'Stop not found' });
+      }
+  
+      // Find ETA details for the stop
+      const etaDetails = await StopTime.find({ stop_id: stop.stop_id });
+  
+      res.json(etaDetails);
+    } catch (error) {
+      console.error('Error fetching ETA details:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+// Define RouteDetails Schema and Model
 const routeSchema = new mongoose.Schema({
     _id: String,
     route_name: String,
@@ -53,9 +133,22 @@ const routeSchema = new mongoose.Schema({
     route_type: String,
     route_description: String,
     bus_stops: [String],
-  });
-  
-  const RouteDetails = mongoose.model('routedetails', routeSchema);
+});
+
+const RouteDetails = mongoose.model('RouteDetails', routeSchema);
+
+// Route to fetch route details by route_short_name
+app.get('/api/routes/:route_short_name', async (req, res) => {
+    try {
+        const routeDetails = await RouteDetails.findOne({ route_short_name: req.params.route_short_name });
+        if (!routeDetails) {
+            return res.status(404).json({ message: 'Route not found' });
+        }
+        res.json(routeDetails);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
 
 // Setup Nodemailer
 const transporter = nodemailer.createTransport({
@@ -172,20 +265,6 @@ app.post("/api/forgot-password/reset-password", async (req, res) => {
         res.status(500).json({ message: "Error resetting password", error: error.message });
     }
 });
-
-// Route Details Endpoint
-// API Route to fetch route details by route_short_name
-app.get('/api/routes/:route_short_name', async (req, res) => {
-    try {
-      const routeDetails = await RouteDetails.findOne({ route_short_name: req.params.route_short_name });
-      if (!routeDetails) {
-        return res.status(404).json({ message: 'Route not found' });
-      }
-      res.json(routeDetails);
-    } catch (err) {
-      res.status(500).json({ message: 'Server error', error: err.message });
-    }
-  });
 
 // Protected Route Example
 app.get("/home", authMiddleware, (req, res) => {

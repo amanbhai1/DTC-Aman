@@ -8,7 +8,7 @@ import 'leaflet-routing-machine';
 const BUS_ICON_URL = 'https://www.wavetransit.com/wp-content/uploads/2017/03/wave-connect-bus-icon-300x300.png';
 
 const TrackBus = () => {
-  const [position, setPosition] = useState([51.505, -0.09]); // Example initial coordinates
+  const [position, setPosition] = useState([28.6139, 77.2090]); // Example initial coordinates
   const [busStops, setBusStops] = useState([]);
   const [routeNo, setRouteNo] = useState('');
   const [busNo, setBusNo] = useState('');
