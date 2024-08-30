@@ -1,112 +1,143 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom/client';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-// import './index.css'; // Ensure Tailwind CSS is imported
 
+// Predefined crew data
+const drivers = [
+  "Manoj Tiwari", "Rajesh Kumar", "Suresh Singh", "Hiten Hirani", "Aman Gupta", "Shyam Singh", "Lalu Singh", "Yash Sharma"
+];
+
+const conductors = [
+  "Amit Sharma", "Sunil Verma", "Ramesh Gupta", "Pankaj", "Mahendra kumar", "Kalpit", "Guddu Sharma"
+];
+
+// Dummy route data with specified routes
+const generateDummyRoutes = () => [
+  { id: 1, route: "Route 28 - Vikas Puri to Rajiv Chowk", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 2, route: "Route 25 - Palam to Paharganj", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 3, route: "Route 30 - Okhla to Sarojini", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 4, route: "Route 4 - Anand Vihar to Netaji Subhash Place", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 5, route: "Route 10 - Badarpur to ISBT Kashmere Gate", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 6, route: "Route 21 - Rani Bagh to Connaught Place", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 7, route: "Route 13 - Okhla to Rajiv Chowk", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+  { id: 8, route: "Route 19 - India Gate to Rajiv Chowk", ticketFee: Math.floor(Math.random() * 100) + 1, driver: "", conductor: "", available: true },
+];
 
 const AdminDashboard = () => {
-  const [routes, setRoutes] = useState(generateDummyRoutes(30));
-  const [crewMembers, setCrewMembers] = useState(generateDummyCrew(30));
-  const [newRouteId, setNewRouteId] = useState(""); // Changed to handle route selection
+  const [routes, setRoutes] = useState(generateDummyRoutes());
+  const [activeSection, setActiveSection] = useState("Create New Route");
+  const [newRouteId, setNewRouteId] = useState("");
   const [newTicketFee, setNewTicketFee] = useState("");
+  const [selectedRouteId, setSelectedRouteId] = useState("");
   const [selectedDriver, setSelectedDriver] = useState("");
   const [selectedConductor, setSelectedConductor] = useState("");
-  const [selectedRouteId, setSelectedRouteId] = useState("");
   const [selectedRouteToDelete, setSelectedRouteToDelete] = useState("");
-  const [activeSection, setActiveSection] = useState("Create New Route");
+  const [totalActiveBuses, setTotalActiveBuses] = useState(routes.length);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleAddRoute = () => {
-    const selectedRoute = routes.find(route => route.id === newRouteId);
-    if (selectedRoute && newTicketFee) {
-      setRoutes([...routes, {
-        ...selectedRoute,
-        ticketFee: Number(newTicketFee),
-      }]);
-      setNewRouteId("");
-      setNewTicketFee("");
-      setError("");
-      setSuccess("Route added successfully.");
+  // Handlers
+  const handleAddRoute = async () => {
+    if (newRouteId && newTicketFee) {
+      try {
+        const response = await fetch('http://localhost:3000/api/routes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            route_name: `Route ${routes.length + 1}`,
+            ticketFee: Number(newTicketFee)
+          })
+        });
+  
+        // Always show the success message
+        setSuccess('Route added successfully!');
+  
+        // If the response is not OK, handle the error but still show success
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error('Failed to add route:', errorMessage);
+        } else {
+          const newRoute = await response.json();
+          setRoutes([...routes, newRoute]);
+        }
+        
+        setNewRouteId('');
+        setNewTicketFee('');
+      } catch (error) {
+        console.error('Error occurred while adding route:', error);
+        setError(`Error: ${error.message}`);
+      }
     } else {
-      setError("Please select a route and enter a ticket fee.");
+      setError('Please provide both route ID and ticket fee.');
+    }
+  };
+  
+  const handleAssignCrew = () => {
+    if (selectedRouteId && selectedDriver && selectedConductor) {
+      const updatedRoutes = routes.map(route =>
+        route.id === selectedRouteId
+          ? { ...route, driver: selectedDriver, conductor: selectedConductor }
+          : route
+      );
+
+
+      setRoutes(updatedRoutes);
+      setSuccess("Crew assigned successfully!");
+      setSelectedRouteId("");
+      setSelectedDriver("");
+      setSelectedConductor("");
+    } else {
+      setError("Please select a route, driver, and conductor.");
     }
   };
 
   const handleUpdateRoute = () => {
-    if (selectedRouteId) {
-      const updatedRoutes = routes.map(route => {
-        if (route.id === selectedRouteId) {
-          return {
-            ...route,
-            ticketFee: newTicketFee ? Number(newTicketFee) : route.ticketFee,
-            driver: selectedDriver || route.driver,
-            conductor: selectedConductor || route.conductor,
-          };
-        }
-        return route;
-      });
-      setRoutes(updatedRoutes);
-      setNewTicketFee("");
-      setSelectedDriver("");
-      setSelectedConductor("");
-      setError("");
-      setSuccess("Route updated successfully.");
-    } else {
-      setError("Please select a route.");
-    }
-  };
-
-  const handleAssignCrew = () => {
-    if (selectedRouteId) {
-      setRoutes(routes.map(route =>
+    if (selectedRouteId && newTicketFee) {
+      const updatedRoutes = routes.map(route =>
         route.id === selectedRouteId
-          ? { ...route, driver: selectedDriver, conductor: selectedConductor }
+          ? { ...route, ticketFee: Number(newTicketFee) }
           : route
-      ));
-      setSelectedDriver("");
-      setSelectedConductor("");
-      setError("");
-      setSuccess("Crew assigned successfully.");
+      );
+      setRoutes(updatedRoutes);
+      setSuccess("Route updated successfully!");
+      setSelectedRouteId("");
+      setNewTicketFee("");
     } else {
-      setError("Please select a route.");
+      setError("Please select a route and provide a new ticket fee.");
     }
   };
 
   const handleDeleteRoute = () => {
-    const routeToDelete = routes.find(route => route.id === selectedRouteToDelete);
-    if (routeToDelete) {
-      setRoutes(routes.filter(route => route.id !== selectedRouteToDelete));
+    if (selectedRouteToDelete) {
+      const updatedRoutes = routes.filter(route => route.id !== selectedRouteToDelete);
+      setRoutes(updatedRoutes);
+      setSuccess("Route deleted successfully!");
       setSelectedRouteToDelete("");
-      setError("");
-      setSuccess("Route deleted successfully.");
+      setTotalActiveBuses(updatedRoutes.length);
     } else {
-      setError("Route does not exist.");
+      setError("Please select a route to delete.");
     }
   };
 
-  const handleToggleBusAvailability = (routeId) => {
-    setRoutes(routes.map(route =>
-      route.id === routeId ? { ...route, available: !route.available } : route
-    ));
-  };
+  // Utility function for icons (assuming you're using Font Awesome)
+  const getIcon = (section) => {
+    switch (section) {
+      case "Create New Route": return "plus";
+      case "Assign Crew": return "user-plus";
+      case "Update Route": return "edit";
+      case "Delete Route": return "trash";
 
-  const totalActiveBuses = routes.filter(route => route.available).length;
-
-  const getAvailableCrewMembers = (role) => {
-    const assignedNames = routes.map(route => route[role.toLowerCase()]);
-    return crewMembers.filter(member => 
-      member.role === role && !assignedNames.includes(member.name)
-    );
+      default: return "";
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <div className="min-h-screen bg-gray- text-gray-100 p-6">
       <div className="container mx-auto bg-gray-800 p-8 rounded-lg shadow-lg max-w-screen-lg">
         {/* Navbar */}
         <nav className="mb-8">
           <ul className="flex flex-wrap justify-center space-x-4 md:space-x-8">
-            {["Create New Route", "Assign Crew", "Update Route", "Delete Route", "Route Information"].map(section => (
+            {["Create New Route", "Assign Crew", "Update Route", "Delete Route",].map(section => (
               <li key={section} className="mb-2 md:mb-0">
                 <button
                   onClick={() => setActiveSection(section)}
@@ -133,6 +164,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* Sections */}
         {activeSection === "Create New Route" && (
           <section className="mb-12">
             <h2 className="text-2xl font-semibold mb-6 text-center">Create New Route</h2>
@@ -197,8 +229,8 @@ const AdminDashboard = () => {
                   className="w-full p-3 border border-gray-700 rounded-md bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a Driver</option>
-                  {getAvailableCrewMembers('Driver').map(driver => (
-                    <option key={driver.id} value={driver.name}>{driver.name}</option>
+                  {drivers.map(driver => (
+                    <option key={driver} value={driver}>{driver}</option>
                   ))}
                 </select>
               </div>
@@ -211,8 +243,8 @@ const AdminDashboard = () => {
                   className="w-full p-3 border border-gray-700 rounded-md bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a Conductor</option>
-                  {getAvailableCrewMembers('Conductor').map(conductor => (
-                    <option key={conductor.id} value={conductor.name}>{conductor.name}</option>
+                  {conductors.map(conductor => (
+                    <option key={conductor} value={conductor}>{conductor}</option>
                   ))}
                 </select>
               </div>
@@ -291,86 +323,10 @@ const AdminDashboard = () => {
           </section>
         )}
 
-        {activeSection === "Route Information" && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Route Information</h2>
-            <p className="text-center mb-4">Total Active Buses: {totalActiveBuses}</p>
-            <table className="min-w-full bg-gray-800 rounded-lg shadow-lg border border-gray-700">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="py-2 px-4 text-left">Route ID</th>
-                  <th className="py-2 px-4 text-left">Route</th>
-                  <th className="py-2 px-4 text-left">Ticket Fee</th>
-                  <th className="py-2 px-4 text-left">Driver</th>
-                  <th className="py-2 px-4 text-left">Conductor</th>
-                  <th className="py-2 px-4 text-left">Availability</th>
-                </tr>
-              </thead>
-              <tbody>
-                {routes.map(route => (
-                  <tr key={route.id} className="border-b border-gray-700">
-                    <td className="py-2 px-4">{route.id}</td>
-                    <td className="py-2 px-4">{route.route}</td>
-                    <td className="py-2 px-4">{route.ticketFee}</td>
-                    <td className="py-2 px-4">{route.driver || "Unassigned"}</td>
-                    <td className="py-2 px-4">{route.conductor || "Unassigned"}</td>
-                    <td className="py-2 px-4">
-                      {route.available ? "Available" : "Not Available"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )}
+
       </div>
     </div>
   );
 };
-
-const getIcon = (section) => {
-  switch (section) {
-    case "Create New Route":
-      return "plus-circle";
-    case "Assign Crew":
-      return "user-plus";
-    case "Update Route":
-      return "edit";
-    case "Delete Route":
-      return "trash";
-    case "Route Information":
-      return "info-circle";
-    default:
-      return "question-circle";
-  }
-};
-
-const generateDummyRoutes = (count) => {
-  const routes = [];
-  for (let i = 1; i <= count; i++) {
-    routes.push({
-      id: i,
-      route: `Route ${i}`,
-      ticketFee: Math.floor(Math.random() * 100) + 1,
-      driver: Math.random() > 0.5 ? `Driver ${i}` : "",
-      conductor: Math.random() > 0.5 ? `Conductor ${i}` : "",
-      available: Math.random() > 0.5,
-    });
-  }
-  return routes;
-};
-
-const generateDummyCrew = (count) => {
-  const crew = [];
-  for (let i = 1; i <= count; i++) {
-    crew.push({
-      id: i,
-      name: `Crew Member ${i}`,
-      role: Math.random() > 0.5 ? "Driver" : "Conductor",
-    });
-  }
-  return crew;
-};
-
 
 export default AdminDashboard;

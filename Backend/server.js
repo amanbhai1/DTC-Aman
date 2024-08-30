@@ -145,6 +145,25 @@ app.get('/api/bus-stops/nearby', async (req, res) => {
     }
 });
 
+app.get('/api/stops', async (req, res) => {
+    const query = req.query.query;
+  
+    try {
+      // Replace with actual logic to fetch bus stops from your database
+      const stops = await Stop.find({ stop_name: { $regex: query, $options: 'i' } });
+  
+      if (!stops.length) {
+        return res.status(404).json({ message: 'No bus stops found' });
+      }
+  
+      res.json(stops);
+    } catch (error) {
+      console.error('Error fetching bus stops:', error);
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  });
+  
+
 app.get('/api/eta', async (req, res) => {
     const { stop_name } = req.query;
 

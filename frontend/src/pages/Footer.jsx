@@ -1,15 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import routelogo from '../assets/routePulseLogo.png';
 
 function Footer() {
   return (
     <footer className="bg-[#001d3d] text-white py-10 px-20">
+      <h2 className="text-3xl font-bold mb-4 text-center mb-8">Navigate Our Website Easily</h2>
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
+        
         {/* Company Logo and Description */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <img src="https://img.freepik.com/premium-vector/travel-bus-logo-vector-illustration_600323-357.jpg?w=360" alt="Company Logo" className="w-8 h-8" />
-            <h1 className="text-2xl font-bold">Bigtranz</h1>
+            <img src={routelogo} alt="Company Logo" className="w-14 h-12" />
+            <h1 className="text-2xl font-bold">Route Pulse</h1>
           </div>
           <p>
             Molestie ad feugiat est facilisis faucibus magnis. Convallis magna
@@ -25,10 +28,10 @@ function Footer() {
           <h2 className="font-bold text-lg">Company</h2>
           <ul className="space-y-2">
             <li><NavLink to="/about" className="hover:underline">About Us</NavLink></li>
-            <li><NavLink to="/leadership" className="hover:underline">Leadership</NavLink></li>
             <li><NavLink to="/careers" className="hover:underline">Careers</NavLink></li>
             <li><NavLink to="/blogs" className="hover:underline">Blogs</NavLink></li>
             <li><NavLink to="/passengerFeedback" className="hover:underline">Passenger Feedback</NavLink></li>
+            <li><NavLink to="/contact" className="hover:underline">Contact Us</NavLink></li>
           </ul>
         </div>
 

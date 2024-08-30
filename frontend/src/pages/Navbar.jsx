@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa'; // For hamburger and close icons
+import routelogo from '../assets/routePulseLogo.png';
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,9 +22,9 @@ function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center">
           <img
-            src="https://img.freepik.com/premium-vector/vector-illustration-yellow-bus-transparent-background_181203-31343.jpg?semt=ais_hybrid"
+            src={routelogo}
             alt="Bus Logo"
-            className="w-10 h-10 sm:w-12 sm:h-12"
+            className="w-20 mt-1 mb-1 ml-4" // Updated size
           />
           <span className="text-white font-bold ml-4 hidden sm:block md:hidden lg:block xl:hidden 2xl:block">
             Bus Route Manager
@@ -80,6 +81,5 @@ function Navbar() {
     </nav>
   );
 }
-
 
 export default Navbar;

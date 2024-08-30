@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { FaBusAlt, FaMapMarkerAlt } from 'react-icons/fa';
 
+// Replace with your backend API URL
+const API_URL = '/api/stops';
+
 const SearchBusStop = () => {
   const [query, setQuery] = useState('');
   const [busStopDetails, setBusStopDetails] = useState([]);
@@ -8,34 +11,36 @@ const SearchBusStop = () => {
 
   const handleSearch = async () => {
     setLoading(true);
-
-    // Simulate fetching data based on query
-    const mockBusStopDetails = [
-      {
-        id: 1,
-        name: 'Main St & 3rd Ave',
-        distance: '19 meters',
-        routes: ['701'],
-      },
-      {
-        id: 2,
-        name: '2nd St & 5th Ave',
-        distance: '48 meters',
-        routes: ['236A', '236B', '539', '567BSTL'],
-      },
-      {
-        id: 3,
-        name: '5th St & 9th Ave',
-        distance: '63 meters',
-        routes: ['701', '708', '923A', '978A'],
-      },
-    ];
-
-    // Mock data assignment
-    setBusStopDetails(mockBusStopDetails);
-
+    setBusStopDetails([]); // Clear previous results
+    try {
+      const response = await fetch(`${API_URL}?query=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text(); // Get the error text from the response
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      }
+  
+      // Attempt to parse JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error('Failed to parse JSON response');
+      }
+      
+      // Check if the data is in the expected format
+      if (!Array.isArray(data)) {
+        throw new Error('Unexpected data format');
+      }
+      
+      setBusStopDetails(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      alert(`An error occurred while fetching bus stop details. Error: ${error.message}`);
+    }
     setLoading(false);
   };
+  
 
   return (
     <div className="p-6 bg-gray-900 rounded-lg shadow-lg text-white relative overflow-hidden">
@@ -72,28 +77,25 @@ const SearchBusStop = () => {
               <thead>
                 <tr className="bg-green-800">
                   <th className="border border-green-900 p-3">S. No.</th>
-                  <th className="border border-green-900 p-3">Name</th>
-                  <th className="border border-green-900 p-3">Distance from {query} (in meters)</th>
-                  <th className="border border-green-900 p-3">Routes</th>
+                  <th className="border border-green-900 p-3">Stop Code</th>
+                  <th className="border border-green-900 p-3">Stop Name</th>
+                  <th className="border border-green-900 p-3">Stop Latitude</th>
+                  <th className="border border-green-900 p-3">Stop Longitude</th>
                 </tr>
               </thead>
               <tbody>
                 {busStopDetails.map((stop, index) => (
-                  <tr key={stop.id} className="bg-gray-700 hover:bg-gray-600">
+                  <tr key={stop.stop_code} className="bg-gray-700 hover:bg-gray-600">
                     <td className="border border-green-900 p-3">{index + 1}</td>
-                    <td className="border border-green-900 p-3 text-blue-400 cursor-pointer">
-                      <FaMapMarkerAlt className="inline-block mr-2 text-green-500" />
-                      {stop.name}
-                    </td>
-                    <td className="border border-green-900 p-3">{stop.distance}</td>
                     <td className="border border-green-900 p-3 text-blue-400">
-                      {stop.routes.map((route, i) => (
-                        <span key={i} className="flex items-center justify-center">
-                          <FaBusAlt className="inline-block mr-1 text-yellow-400" />
-                          {route}{' '}
-                        </span>
-                      ))}
+                      {stop.stop_code}
                     </td>
+                    <td className="border border-green-900 p-3 text-blue-400">
+                      <FaMapMarkerAlt className="inline-block mr-2 text-green-500" />
+                      {stop.stop_name}
+                    </td>
+                    <td className="border border-green-900 p-3">{stop.stop_lat}</td>
+                    <td className="border border-green-900 p-3">{stop.stop_lon}</td>
                   </tr>
                 ))}
               </tbody>
