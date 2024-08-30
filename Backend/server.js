@@ -299,11 +299,17 @@ app.post("/api/forgot-password/verify-otp", async (req, res) => {
 });
 
 app.post("/api/forgot-password/reset-password", async (req, res) => {
-    const { email, newPassword } = req.body;
+    const { token, newPassword } = req.body;
     try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = decoded.email;
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await User.updateOne({ email }, { password: hashedPassword });
-        res.status(200).json({ message: "Password reset successfully" });
+
+        await OTP.deleteOne({ email });
+
+        res.status(200).json({ message: "Password reset successful" });
     } catch (error) {
         res.status(500).json({ message: "Error resetting password", error: error.message });
     }
