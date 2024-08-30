@@ -20,12 +20,16 @@ const CrewLogin = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+
     if (!username || !password) {
       setErrorMessage("Please fill in all fields.");
     } else {
-      setErrorMessage("");
-      setIsLoginSuccess(true);
-      navigate('/crew/crewDashboard'); // Redirect to CrewDashboard on successful login
+      if (username === "crew" && password === "crew") {
+        // If username and password are "crew", navigate to admin dashboard
+        navigate('/crew/crewDashboard');
+      } else {
+        setErrorMessage("Invalid username or password.");
+      }
     }
   };
 

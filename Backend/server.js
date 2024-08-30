@@ -6,14 +6,104 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import authMiddleware from './middleware/authMiddleware.js';
+import crewRoutes from './routes/crew.js';
+import path from 'path';
+import http from 'http';
+import { Server as SocketIO } from 'socket.io'; // Correct ES module import
 
 // Initialize environment variables
 dotenv.config();
 
+// Initialize Express app and server
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIO(server);
+
+// Middleware
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(path.resolve(), 'public'))); // Serve static files
+
+// Set view engine
+app.set('view engine', 'ejs');
+
+// Socket.io Setup
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('send-location', (data) => {
+        io.emit('receive-location', { id: socket.id, ...data });
+    });
+
+    socket.on('disconnect', () => {
+        io.emit('user-disconnected', socket.id);
+        console.log('User disconnected');
+    });
+});
+
+// Define Schemas and Models
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+});
+
+const User = mongoose.model('User', userSchema);
+
+const otpSchema = new mongoose.Schema({
+    email: { type: String, required: true },
+    code: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now, expires: '10m' }, // OTP expires after 10 minutes
+});
+
+const OTP = mongoose.model('OTP', otpSchema);
+
+const stopSchema = new mongoose.Schema({
+    stop_code: String,
+    stop_id: String,
+    stop_lat: String,
+    stop_lon: String,
+    stop_name: String,
+    zone_id: String,
+});
+
+const stopTimeSchema = new mongoose.Schema({
+    trip_id: String,
+    arrival_time: String,
+    departure_time: String,
+    stop_id: String,
+    stop_sequence: String,
+});
+
+const Stop = mongoose.model('Stop', stopSchema);
+const StopTime = mongoose.model('StopTime', stopTimeSchema);
+
+const busStopSchema = new mongoose.Schema({
+    name: String,
+    location: {
+        type: { type: String },
+        coordinates: [Number],
+    },
+    routes: [String],
+});
+
+busStopSchema.index({ location: '2dsphere' });
+
+const BusStop = mongoose.model('BusStop', busStopSchema);
+
+const routeSchema = new mongoose.Schema({
+    route_name: String,
+    route_short_name: String,
+    'Ticket fee': String,
+    Conductor: String,
+    Driver: String,
+    route_type: String,
+    route_description: String,
+    bus_stops: [String],
+    bus_id: String
+});
+
+const RouteDetails = mongoose.model('RouteDetails', routeSchema);
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -30,114 +120,69 @@ const connectDB = async () => {
 };
 connectDB();
 
-// Define User Schema and Model
-const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+// API Endpoints
+app.get('/crew/trace', (_req, res) => {
+    res.render('index');
 });
 
-const User = mongoose.model("User", userSchema);
+app.use('/api/crew', crewRoutes);
 
-// Define OTP Schema and Model
-const otpSchema = new mongoose.Schema({
-    email: { type: String, required: true },
-    code: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now, expires: '10m' }, // OTP expires after 10 minutes
-});
-
-const OTP = mongoose.model("OTP", otpSchema);
-
-const StopSchema = new mongoose.Schema({
-    stop_code: String,
-    stop_id: String,
-    stop_lat: String,
-    stop_lon: String,
-    stop_name: String,
-    zone_id: String,
-  });
-  
-  const StopTimeSchema = new mongoose.Schema({
-    trip_id: String,
-    arrival_time: String,
-    departure_time: String,
-    stop_id: String,
-    stop_sequence: String,
-  });
-  
-  const Stop = mongoose.model('Stop', StopSchema);
-  const StopTime = mongoose.model('StopTime', StopTimeSchema);
-  
-  const busStopSchema = new mongoose.Schema({
-    name: String,
-    location: {
-      type: { type: String },
-      coordinates: [Number],
-    },
-    routes: [String],
-  });
-  
-  busStopSchema.index({ location: '2dsphere' });
-  
-  const BusStop = mongoose.model('BusStop', busStopSchema);
-  
-  // API to get nearby bus stops within a 300-meter radius
-  app.get('/api/bus-stops/nearby', async (req, res) => {
+app.get('/api/bus-stops/nearby', async (req, res) => {
     const { lat, lng, radius } = req.query;
-    const maxDistance = parseFloat(radius) || 300;
-  
-    try {
-      const busStops = await BusStop.find({
-        location: {
-          $geoWithin: {
-            $centerSphere: [[lng, lat], maxDistance / 6378.1],
-          },
-        },
-      });
-      res.json(busStops);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+    const maxDistance = parseFloat(radius) || 300; // Default radius
 
-  // API endpoint to get ETA details
-  app.get('/api/eta', async (req, res) => {
-    const { stop_name } = req.query;
-  
-    if (!stop_name) {
-      return res.status(400).json({ error: 'Stop name is required' });
-    }
-  
     try {
-      // Find the stop by name
-      const stop = await Stop.findOne({ stop_name: new RegExp(stop_name, 'i') });
-  
-      if (!stop) {
-        return res.status(404).json({ error: 'Stop not found' });
-      }
-  
-      // Find ETA details for the stop
-      const etaDetails = await StopTime.find({ stop_id: stop.stop_id });
-  
-      res.json(etaDetails);
+        const busStops = await BusStop.find({
+            location: {
+                $geoWithin: {
+                    $centerSphere: [[lng, lat], maxDistance / 6378.1], // Convert radius to radians
+                },
+            },
+        });
+        res.json(busStops);
     } catch (error) {
-      console.error('Error fetching ETA details:', error);
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: error.message });
     }
-  });
-
-// Define RouteDetails Schema and Model
-const routeSchema = new mongoose.Schema({
-    _id: String,
-    route_name: String,
-    route_short_name: String,
-    route_type: String,
-    route_description: String,
-    bus_stops: [String],
 });
 
-const RouteDetails = mongoose.model('RouteDetails', routeSchema);
+app.get('/api/eta', async (req, res) => {
+    const { stop_name } = req.query;
 
-// Route to fetch route details by route_short_name
+    if (!stop_name) {
+        return res.status(400).json({ error: 'Stop name is required' });
+    }
+
+    try {
+        const stop = await Stop.findOne({ stop_name: new RegExp(stop_name, 'i') });
+
+        if (!stop) {
+            return res.status(404).json({ error: 'Stop not found' });
+        }
+
+        const etaDetails = await StopTime.find({ stop_id: stop.stop_id });
+
+        res.json(etaDetails);
+    } catch (error) {
+        console.error('Error fetching ETA details:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/routes/:busId', async (req, res) => {
+    try {
+        const busId = req.params.busId;
+        const route = await RouteDetails.findOne({ bus_id: busId });
+
+        if (route) {
+            res.json(route);
+        } else {
+            res.status(404).json({ message: 'No details found for this bus ID.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching data from the server.' });
+    }
+});
+
 app.get('/api/routes/:route_short_name', async (req, res) => {
     try {
         const routeDetails = await RouteDetails.findOne({ route_short_name: req.params.route_short_name });
@@ -150,7 +195,6 @@ app.get('/api/routes/:route_short_name', async (req, res) => {
     }
 });
 
-// Setup Nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -159,7 +203,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Login Route
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -175,7 +218,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// Signup Route
 app.post("/signup", async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -193,11 +235,10 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-app.get("/Home", authMiddleware, (req, res) => {
+app.get("/Home", authMiddleware, (_req, res) => {
     res.status(200).json({ message: "Welcome to the home page" });
 });
 
-// Generate and send OTP
 app.post("/api/forgot-password/request-otp", async (req, res) => {
     const { email } = req.body;
     try {
@@ -227,52 +268,50 @@ app.post("/api/forgot-password/request-otp", async (req, res) => {
     }
 });
 
-// Verify OTP
 app.post("/api/forgot-password/verify-otp", async (req, res) => {
     const { email, otp } = req.body;
     try {
         const storedOtp = await OTP.findOne({ email });
         if (!storedOtp) {
-            return res.status(400).json({ message: "OTP not found or expired" });
+            return res.status(400).json({ message: "OTP not found" });
         }
 
         const isMatch = await bcrypt.compare(otp, storedOtp.code);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid OTP" });
+        if (isMatch) {
+            await OTP.deleteOne({ email });
+            res.status(200).json({ message: "OTP verified" });
+        } else {
+            res.status(400).json({ message: "Invalid OTP" });
         }
-
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        res.status(200).json({ message: "OTP verified", token });
     } catch (error) {
         res.status(500).json({ message: "Error verifying OTP", error: error.message });
     }
 });
 
-// Reset Password
 app.post("/api/forgot-password/reset-password", async (req, res) => {
-    const { token, newPassword } = req.body;
+    const { email, newPassword } = req.body;
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const email = decoded.email;
-
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await User.updateOne({ email }, { password: hashedPassword });
-
-        await OTP.deleteOne({ email });
-
-        res.status(200).json({ message: "Password reset successful" });
+        res.status(200).json({ message: "Password reset successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error resetting password", error: error.message });
     }
 });
 
-// Protected Route Example
-app.get("/home", authMiddleware, (req, res) => {
-    res.status(200).json({ message: "Welcome to the home page" });
+// 404 Error Handling
+app.use((_req, res, _next) => {
+    res.status(404).json({ message: "Route not found" });
+});
+
+// General Error Handling
+app.use((err, _req, res, _next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: "Internal server error" });
 });
 
 // Start Server
 const PORT = process.env.PORT || 9002;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

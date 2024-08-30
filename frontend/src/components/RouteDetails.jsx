@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Tooltip, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, Polyline, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -42,10 +42,11 @@ const Routes = () => {
     try {
       const response = await axios.get(url);
       const route = response.data.routes[0].geometry.coordinates;
-      return route.map(coord => [coord[1], coord[0]]);
+      const directions = response.data.routes[0].legs[0].steps.map(step => step.maneuver.instruction); // Get step-by-step directions
+      return { route: route.map(coord => [coord[1], coord[0]]), directions };
     } catch (error) {
       console.error('Error fetching route:', error);
-      return [];
+      return { route: [], directions: [] };
     }
   };
 
@@ -65,11 +66,13 @@ const Routes = () => {
 
       // Get route between each consecutive pair of bus stops
       const routePaths = [];
+      const directionsList = [];
       for (let i = 0; i < busStopsWithCoords.length - 1; i++) {
         const startCoords = busStopsWithCoords[i].position;
         const endCoords = busStopsWithCoords[i + 1].position;
-        const path = await getRouteBetweenStops(startCoords, endCoords);
-        routePaths.push(...path);
+        const { route, directions } = await getRouteBetweenStops(startCoords, endCoords);
+        routePaths.push(...route);
+        directionsList.push(...directions);
       }
 
       const transformedData = {
@@ -79,6 +82,7 @@ const Routes = () => {
         destination: data.bus_stops[data.bus_stops.length - 1] || 'Destination Placeholder',
         busStops: busStopsWithCoords,
         routePaths: routePaths,
+        directions: directionsList,
       };
       setBusDetails(transformedData);
     } catch (err) {
@@ -89,17 +93,9 @@ const Routes = () => {
     }
   };
 
-  // Function to scroll to ETA section
-  const scrollToETA = () => {
-    const element = document.getElementById('eta');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="bg-gray-900 text-white p-28 h-auto flex flex-col lg:flex-row">
-      <div className="w-full h-1/2 lg:w-1/2 p-4">
+    <div className="bg-gray-900 text-white p-10 h-auto flex flex-col lg:flex-row">
+      <div className="w-full lg:w-1/2 p-4">
         <h2 className="text-3xl font-bold mb-4 animate-fadeIn">Route Details</h2>
         <div className="mb-4">
           <input
@@ -138,6 +134,12 @@ const Routes = () => {
                 <li key={index}>{stop.name}</li>
               ))}
             </ul>
+            <p><strong>Directions:</strong></p>
+            <ol className="list-decimal ml-6">
+              {busDetails.directions.map((direction, index) => (
+                <li key={index}>{direction}</li>
+              ))}
+            </ol>
           </motion.div>
         )}
       </div>

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
-import ReactDOM from 'react-dom';
-
+import axios from 'axios';
 
 const CrewDashboard = () => {
   const [username, setUsername] = useState("John Doe");
@@ -12,8 +11,10 @@ const CrewDashboard = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [markers, setMarkers] = useState([]);
-  
-  const MAPBOX_API_KEY = 'pk.eyJ1IjoiYW1hbmd1cHRhMTIxIiwiYSI6ImNtMGUzNDEyMzBqc2oya3NjY3E3cWRyd3kifQ.77WQk0FBICCtjCWqF_GStA';
+  const [trackerData, setTrackerData] = useState(null);
+
+  const MAPBOX_API_KEY = 'pk.eyJ1IjoiYW1hbmd1cHRhMTIxIiwiYSI6ImNtMGUzNDEyMzBqc2oya3NjY3E3cWRyd3kifQ.77WQk0FBICCtjCWqF_GStA'; // Replace with your Mapbox API key
+
   useEffect(() => {
     // Fetch user's location
     if (navigator.geolocation) {
@@ -58,6 +59,18 @@ const CrewDashboard = () => {
       { id: 4, latitude: 28.5355, longitude: 77.391, label: 'Noida' }
     ];
     setMarkers((prevMarkers) => [...prevMarkers, ...additionalMarkers]);
+
+    // Fetch data from the external real-time tracker API
+    const fetchTrackerData = async () => {
+      try {
+        const response = await axios.get('https://realtime-tracker-main-muk0.onrender.com/api/tracker'); // Replace with actual API endpoint
+        setTrackerData(response.data);
+      } catch (error) {
+        console.error("Error fetching tracker data: ", error);
+      }
+    };
+
+    fetchTrackerData();
   }, []);
 
   // Define a custom icon if needed (otherwise, Leaflet's default icon will be used)
@@ -137,6 +150,18 @@ const CrewDashboard = () => {
               <li key={index} className="text-lg">{guideline}</li>
             ))}
           </ul>
+        </div>
+
+        {/* External Tracker Data Section */}
+        <div className="mt-8">
+          <h2 className="text-3xl font-semibold mb-4 border-b border-gray-600 pb-2">Real-Time Tracker Data</h2>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            {trackerData ? (
+              <pre className="whitespace-pre-wrap">{JSON.stringify(trackerData, null, 2)}</pre>
+            ) : (
+              <p>Loading tracker data...</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
