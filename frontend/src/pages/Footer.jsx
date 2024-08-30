@@ -8,7 +8,7 @@ function Footer() {
       <h2 className="text-3xl font-bold mb-4 text-center mb-8">Navigate Our Website Easily</h2>
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
         
-        {/* Company Logo and Description */}
+        {}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <img src={routelogo} alt="Company Logo" className="w-14 h-12" />
@@ -23,7 +23,7 @@ function Footer() {
           </a>
         </div>
 
-        {/* Company Links */}
+        {}
         <div className="space-y-2">
           <h2 className="font-bold text-lg">Company</h2>
           <ul className="space-y-2">
@@ -35,7 +35,7 @@ function Footer() {
           </ul>
         </div>
 
-        {/* Services Links */}
+        {}
         <div className="space-y-2">
           <h2 className="font-bold text-lg">Services</h2>
           <ul className="space-y-2">
@@ -47,7 +47,7 @@ function Footer() {
           </ul>
         </div>
 
-        {/* Contact Information */}
+        {}
         <div className="space-y-4">
           <h2 className="font-bold text-lg">Get In Touch</h2>
           <p>Chandani Chowk No 22 Jarkata - Delhi</p>

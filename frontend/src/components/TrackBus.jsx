@@ -19,31 +19,31 @@ const TrackBus = () => {
   };
 
   return (
-    <div className="relative p-6 bg-gradient-to-br from-white via-gray-500 via-slate-400 to-slate-400 min-h-screen bg-gradient-to-r">
+    <div className="relative p-6  min-h-screen bg-gradient-to-r">
       <h2 className="text-4xl font-extrabold text-gray-800 mb-4">
-        🚍 <span className="text-pink-600">Track Your Bus in Real-Time!</span>
+        🚍 <span className="text-orange-400">Track Your Bus in Real-Time!</span>
       </h2>
-      <p className="text-gray-800 mb-6 text-lg leading-relaxed">
+      <p className="text-gray-300 mb-6 text-lg leading-relaxed">
         With our <strong className="text-red-600">TrackBus</strong> feature, effortlessly monitor the current location of your bus, view its live route, and get up-to-date information on all nearby bus stops. Whether you're heading to work, school, or just out and about, we make your commute easier and more reliable.
       </p>
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-2">Key Features:</h3>
+      <div className="bg-slate-800 p-4 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-gray-300 mb-2">Key Features:</h3>
         <ul className="list-disc list-inside space-y-2">
-          <li className="text-gray-700 text-lg">
-            <strong className="text-pink-600">Real-Time Bus Tracking:</strong> Watch the bus move along its route as it happens.
+          <li className="text-gray-400 text-lg ">
+            <strong className="text-pink-400">Real-Time Bus Tracking:</strong> Watch the bus move along its route as it happens.
           </li>
-          <li className="text-gray-700 text-lg">
-            <strong className="text-pink-600">Detailed Route Maps:</strong> View the full route and all stops to plan your journey better.
+          <li className="text-gray-400 text-lg">
+            <strong className="text-pink-400">Detailed Route Maps:</strong> View the full route and all stops to plan your journey better.
           </li>
-          <li className="text-gray-700 text-lg">
-            <strong className="text-pink-600">Instant Stop Information:</strong> Click on any bus stop to see its name, distance from your location, and more.
+          <li className="text-gray-400 text-lg">
+            <strong className="text-pink-400">Instant Stop Information:</strong> Click on any bus stop to see its name, distance from your location, and more.
           </li>
         </ul>
       </div>
 
-      <div className="flex space-x-4 mb-6 items-center">
+      <div className="flex space-x-4 mt-12 mb-6 items-center">
         <div className="w-full max-w-xs p-4">
-          <label className="block font-medium text-gray-700 text-2xl">Bus No.</label>
+          <label className="block font-medium text-gray-400 text-2xl">Bus No.</label>
           <input
             type="text"
             value={busNo}
@@ -77,7 +77,7 @@ const TrackBus = () => {
       </div>
 
       <div className="mt-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Bus Stops</h3>
+        <h3 className="text-lg font-semibold text-gray-400 mb-2">Bus Stops</h3>
         <ul>
           {/* Render bus stops */}
         </ul>

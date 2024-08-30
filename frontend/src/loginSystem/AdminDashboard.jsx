@@ -38,7 +38,7 @@ const AdminDashboard = () => {
   const handleAddRoute = async () => {
     if (newRouteId && newTicketFee) {
       try {
-        const response = await fetch('http://localhost:3000/api/routes', {
+        const response = await fetch('http://52.66.45.131:3000/api/routes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

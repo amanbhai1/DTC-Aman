@@ -1,47 +1,53 @@
 import React from 'react';
+import aman from '../assets/aman.jpg';
+import satyam from '../assets/satyam.jpg';   
+import krish from '../assets/krish.jpeg';   
+import dhvani from '../assets/dhvani.jpg';   
+import parth from '../assets/parth.jpg';   
+import vikash from '../assets/vikash.jpg';   
 
 const teamMembers = [
   {
     name: "Krish Bharadwaj",
     role: "Frontend Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://images.unsplash.com/photo-1702733757515-24c762dc02aa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fG1hbiUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D", 
+    image: krish, 
   },
   {
     name: "Vikas Shakya",
     role: "Frontend Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://i.im.ge/2024/08/27/ftf7bh.vikas.jpeg", 
+    image: vikash, 
   },
   {
     name: "Aman Gupta",
     role: "Backend Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://i.im.ge/2024/08/27/ftfSmK.aman.jpeg", 
+    image: aman, 
   },
   {
     name: "Satyam Yadav",
     role: "Backend Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://images.unsplash.com/photo-1587837073080-448bc6a2329b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTZ8fG1hbiUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D", 
+    image: satyam, 
   },
   {
     name: "Parth Sharma",
     role: "Full Stack Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://images.unsplash.com/photo-1694556957940-b92587150db7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTR8fG1hbiUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D", 
+    image: parth, 
   },
   {
-    name: "Dhavni Khandeal",
+    name: "Dhvani Khandelwal",
     role: "Full Stack Developer",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    image: "https://images.unsplash.com/photo-1668570000995-41591a9ecbfb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Njd8fG1hbiUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D", 
+    image: dhvani, 
   },
 ];
 
 const About = () => {
   return (
-    <div className="bg-[#1F2937] py-8 sm:py-16 px-12 sm:px-6 lg:px-8 mt-8">
+    <div className="bg-[#1F2937] py-8 sm:py-16 px-12 sm:px-6 lg:px-8 mt-12">
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="font-semibold text-[#FBBF24] tracking-wide uppercase text-2xl sm:text-4xl">
           Our Team

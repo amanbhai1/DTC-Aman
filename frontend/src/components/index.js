@@ -1,4 +1,3 @@
-// src/components/index.js
 export { default as BusSchedule } from './BusSchedule';
 export { default as ETA } from './ETA';
 export { default as RouteDetails } from './RouteDetails';

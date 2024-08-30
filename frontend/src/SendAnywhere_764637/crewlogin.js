@@ -9,7 +9,7 @@ const CrewAuth = () => {
   const [isOTPValid, setIsOTPValid] = useState(false);
   const [isOTPFieldVisible, setIsOTPFieldVisible] = useState(false);
   const [isPasswordReset, setIsPasswordReset] = useState(false);
-  const [isLoginSuccess, setIsLoginSuccess] = useState(false); // New state for login success
+  const [isLoginSuccess, setIsLoginSuccess] = useState(false); 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -27,9 +27,7 @@ const CrewAuth = () => {
     if (!username || !password) {
       setErrorMessage("Please fill in all fields.");
     } else {
-      // Assume credentials are correct, so do nothing further
       setErrorMessage("");
-      // No state change or additional actions here
     }
   };
   

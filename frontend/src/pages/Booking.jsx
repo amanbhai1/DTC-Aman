@@ -1,31 +1,39 @@
 import React, { useState } from 'react';
 import QRCode from 'qrcode.react';
 
+const busRoutes = [
+  { routeNumber: "DTC 101", station: "Hazrat Nizamuddin - Rajouri Garden", price: 20 },
+  { routeNumber: "DTC 102", station: "Pitampura - Connaught Place", price: 28 },
+];
+
 function Booking() {
   const [view, setView] = useState('book');
   const [bookingDetails, setBookingDetails] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [bookingID, setBookingID] = useState('');
+  const [amount, setAmount] = useState('');
+  const [selectedRoute, setSelectedRoute] = useState('');
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [manageErrorMessage, setManageErrorMessage] = useState('');
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [routeOptions, setRouteOptions] = useState(busRoutes);
+  const [bookingIDToSearch, setBookingIDToSearch] = useState('');
 
   const handleViewChange = (view) => {
     setView(view);
-    setBookingDetails(null);
     setErrorMessage('');
-    setBookingID('');
+    setAmount('');
+    setPaymentProcessing(false);
     setManageErrorMessage('');
-    setLoadingMessage('');
+    setBookingIDToSearch('');
   };
 
   const handleBookTicket = (e) => {
     e.preventDefault();
     const form = e.target;
-    const from = form.from.value;
-    const to = form.to.value;
+    const name = form.name.value;
     const date = form.date.value;
+    const upi = form.upi.value;
 
-    if (!from || !to || !date) {
+    if (!name || !date || !upi) {
       setErrorMessage('All fields are required.');
       return;
     }
@@ -36,186 +44,229 @@ function Booking() {
       return;
     }
 
+    if (!upi || upi.length > 20) {
+      setErrorMessage('UPI is required and must be at most 20 characters.');
+      return;
+    }
+
+    if (!selectedRoute) {
+      setErrorMessage('Please select a route.');
+      return;
+    }
+
     setErrorMessage('');
-    setLoadingMessage('Searching for Buses...');
+    setPaymentProcessing(true);
+
     setTimeout(() => {
       const randomID = Math.floor(Math.random() * 100000);
-      setBookingID(randomID);
+      const arrivalTime = '12:00 PM';
+
       setBookingDetails({
-        from,
-        to,
-        date,
         id: randomID,
-        time: '10:00 AM'
+        name,
+        route: selectedRoute,
+        date,
+        arrivalTime
       });
-      setLoadingMessage('');
-    }, 3000);
+      setAmount(calculateAmount(selectedRoute));
+      setPaymentProcessing(false);
+    }, 3000); 
+  };
+
+  const calculateAmount = (route) => {
+    const routeData = routeOptions.find(r => r.routeNumber === route);
+    return routeData ? routeData.price : 'Unknown';
+  };
+
+  const handleRouteChange = (e) => {
+    const route = e.target.value;
+    setSelectedRoute(route);
+
+    if (route) {
+      setAmount(calculateAmount(route));
+    } else {
+      setAmount('');
+    }
   };
 
   const handleFindBooking = (e) => {
     e.preventDefault();
-    const bookingId = e.target.bookingID.value;
-
-    if (!bookingId) {
+    if (!bookingIDToSearch) {
       setManageErrorMessage('Booking ID is required.');
       return;
     }
 
-    setManageErrorMessage('');
-    setBookingDetails({
-      from: 'Delhi',
-      to: 'Agra',
-      date: '2024-08-30',
-      id: bookingId,
-      name: 'Krish',
-      time: '10:00 AM'
-    });
+    if (bookingDetails && bookingDetails.id === parseInt(bookingIDToSearch)) {
+      setManageErrorMessage('');
+    } else {
+      setManageErrorMessage('Booking not found.');
+    }
+  };
+
+  const handleBookingIDChange = (e) => {
+    setBookingIDToSearch(e.target.value);
+  };
+
+  const downloadQRCode = () => {
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'booking-qr-code.png';
+      link.click();
+    }
+  };
+
+  const generateQRCodeContent = (details) => {
+    return `Booking ID: ${details.id}\nName: ${details.name}\nRoute: ${details.route}\nDate: ${details.date}\nArrival Time: ${details.arrivalTime}`;
   };
 
   return (
-    <div className="App min-h-screen flex flex-col justify-center items-center mt-20">
-      <header className="bg-green-600 text-white py-6 shadow-md w-full text-center">
-        <h1 className="text-3xl animate-fade-in">Bus Ticket Booking</h1>
+    <div className="mt-32" style={{ backgroundColor: 'white', color: '#1F2937' }}>
+      <header className="py-6 shadow-md text-center bg-green-500 text-white">
+        <h1 className="text-4xl font-bold mb-4">Bus Ticket Booking</h1>
         <div className="mt-4">
           <button
             onClick={() => handleViewChange('book')}
-            className={`px-4 py-2 rounded-full border border-green-600 transition-all duration-300 transform hover:scale-105 ${
-              view === 'book' ? 'bg-white text-green-600' : 'bg-green-600 text-white'
-            }`}
+            className={`px-4 py-2 rounded-full border border-green-500 ${view === 'book' ? 'bg-white text-green-500' : 'bg-green-500 text-white'}`}
           >
             Book Ticket
           </button>
           <button
             onClick={() => handleViewChange('manage')}
-            className={`ml-4 px-4 py-2 rounded-full border border-green-600 transition-all duration-300 transform hover:scale-105 ${
-              view === 'manage' ? 'bg-white text-green-600' : 'bg-green-600 text-white'
-            }`}
+            className={`ml-4 px-4 py-2 rounded-full border border-green-500 ${view === 'manage' ? 'bg-white text-green-500' : 'bg-green-500 text-white'}`}
           >
             Manage Booking
           </button>
         </div>
       </header>
-      <main className="flex-grow flex justify-center items-center w-full p-6 animate-slide-in">
-        {view === 'book' && <BookTicket handleBookTicket={handleBookTicket} bookingDetails={bookingDetails} errorMessage={errorMessage} loadingMessage={loadingMessage} />}
-        {view === 'manage' && <ManageBooking handleFindBooking={handleFindBooking} bookingDetails={bookingDetails} manageErrorMessage={manageErrorMessage} />}
-      </main>
-    </div>
-  );
-}
-
-function BookTicket({ handleBookTicket, bookingDetails, errorMessage, loadingMessage }) {
-  return (
-    <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md transform transition-all hover:shadow-2xl hover:-translate-y-1 duration-300 mb-8 flex flex-col items-center">
-      <h2 className="text-xl font-bold mb-4">Book Your Ticket</h2>
-      <form onSubmit={handleBookTicket} className="w-full">
-        <label className="block mb-3">
-          From:
-          <input
-            type="text"
-            name="from"
-            placeholder="Enter departure city"
-            className="mt-1 p-2 w-full border rounded"
-          />
-        </label>
-        <label className="block mb-3">
-          To:
-          <input
-            type="text"
-            name="to"
-            placeholder="Enter destination city"
-            className="mt-1 p-2 w-full border rounded"
-          />
-        </label>
-        <label className="block mb-3">
-          Date:
-          <input
-            type="date"
-            name="date"
-            className="mt-1 p-2 w-full border rounded"
-          />
-        </label>
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded mt-4 transition-all duration-300 hover:bg-green-700"
-        >
-          Book Ticket
-        </button>
-      </form>
-      {loadingMessage && <p className="text-blue-500 mt-4 text-center text-xl">{loadingMessage}</p>}
-      {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
-      {bookingDetails && (
-        <div className="mt-8 text-center">
-          <p className="text-green-600 text-xl font-bold mb-4">Successfully Booked</p>
-          <p className="text-lg mb-4">Your booking ID: {bookingDetails.id}</p>
-          <div className="flex justify-center">
-            <QRCode
-              value={`From: ${bookingDetails.from}, To: ${bookingDetails.to}, Date: ${bookingDetails.date}, Booking ID: ${bookingDetails.id}, Time: ${bookingDetails.time}`}
-              size={150}
-              level={"H"}
-              includeMargin={true}
-            />
+      <main className="p-6">
+        {view === 'book' && (
+          <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mb-8">
+            {paymentProcessing ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="bg-green-500 text-white p-6 rounded-lg shadow-lg flex items-center">
+                  <svg className="animate-spin h-6 w-6 mr-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 118 8 8 8 0 01-8-8z"></path>
+                  </svg>
+                  <p className="text-xl">Processing Payment...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {bookingDetails ? (
+                  <>
+                    <p className="text-green-600 text-3xl font-bold mb-4 text-center">Payment Successful!</p>
+                    <p className="text-xl mb-4 text-center">Booking ID: <span className="font-semibold">{bookingDetails.id}</span></p>
+                    <div className="flex justify-center mb-4">
+                      <QRCode
+                        value={generateQRCodeContent(bookingDetails)}
+                        size={128}
+                        className="mx-auto"
+                      />
+                    </div>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={downloadQRCode}
+                        className="px-4 py-2 bg-green-500 text-white rounded-md"
+                      >
+                        Download QR Code
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold mb-4 text-center">Book Your Ticket</h2>
+                    <form onSubmit={handleBookTicket}>
+                      <label className="block mb-4">
+                        Name:
+                        <input type="text" name="name" placeholder="Enter Name" className="w-full border border-gray-300 p-2 rounded mt-2" required />
+                      </label>
+                      <label className="block mb-4">
+                        Travel Date:
+                        <input type="date" name="date" className="w-full border border-gray-300 p-2 rounded mt-2" required />
+                      </label>
+                      <label className="block mb-4">
+                        UPI ID:
+                        <input type="text" name="upi" placeholder="Enter UPI ID" className="w-full border border-gray-300 p-2 rounded mt-2" maxLength="20" required />
+                      </label>
+                      <label className="block mb-4">
+                        Select Route:
+                        <select value={selectedRoute} onChange={handleRouteChange} className="w-full border border-gray-300 p-2 rounded mt-2" required>
+                          <option value="" disabled>Select Route</option>
+                          {routeOptions.map((route) => (
+                            <option key={route.routeNumber} value={route.routeNumber}>
+                              {route.routeNumber} - {route.station} ({route.price} INR)
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className="block mb-4">
+                        <p className="font-semibold">Price: {amount} INR</p>
+                      </div>
+                      {errorMessage && (
+                        <p className="text-red-500 mb-4">{errorMessage}</p>
+                      )}
+                      <button type="submit" className="w-full bg-green-500 text-white py-2 rounded">
+                        Pay and Book
+                      </button>
+                    </form>
+                  </>
+                )}
+              </>
+            )}
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ManageBooking({ handleFindBooking, bookingDetails, manageErrorMessage }) {
-  return (
-    <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md transform transition-all hover:shadow-2xl hover:-translate-y-1 duration-300 mb-8 flex flex-col items-center">
-      <h2 className="text-xl font-bold mb-4">Manage Your Booking</h2>
-      <form onSubmit={handleFindBooking} className="w-full">
-        <label className="block mb-3">
-          Booking ID:
-          <input
-            type="text"
-            name="bookingID"
-            placeholder="Enter booking ID"
-            className="mt-1 p-2 w-full border rounded"
-          />
-        </label>
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded mt-4 transition-all duration-300 hover:bg-green-700"
-        >
-          Find Booking
-        </button>
-      </form>
-      {manageErrorMessage && <p className="text-red-500 mt-4">{manageErrorMessage}</p>}
-      {bookingDetails && (
-        <div className="mt-8 bg-gray-100 p-4 rounded-lg shadow-md w-full">
-          <h3 className="text-lg font-bold mb-2">Booking Details</h3>
-          <table className="w-full border-collapse">
-            <tbody>
-              <tr>
-                <td className="border p-2"><strong>ID</strong></td>
-                <td className="border p-2">{bookingDetails.id}</td>
-              </tr>
-              <tr>
-                <td className="border p-2"><strong>Name</strong></td>
-                <td className="border p-2">{bookingDetails.name}</td>
-              </tr>
-              <tr>
-                <td className="border p-2"><strong>From</strong></td>
-                <td className="border p-2">{bookingDetails.from}</td>
-              </tr>
-              <tr>
-                <td className="border p-2"><strong>To</strong></td>
-                <td className="border p-2">{bookingDetails.to}</td>
-              </tr>
-              <tr>
-                <td className="border p-2"><strong>Date</strong></td>
-                <td className="border p-2">{bookingDetails.date}</td>
-              </tr>
-              <tr>
-                <td className="border p-2"><strong>Arrival Time</strong></td>
-                <td className="border p-2">{bookingDetails.time}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      )}
+        )}
+        {view === 'manage' && (
+          <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4 text-center">Manage Your Booking</h2>
+            <form onSubmit={handleFindBooking}>
+              <label className="block mb-4">
+                Booking ID:
+                <input
+                  type="text"
+                  placeholder="Enter Booking ID"
+                  value={bookingIDToSearch}
+                  onChange={handleBookingIDChange}
+                  className="w-full border border-gray-300 p-2 rounded mt-2"
+                />
+              </label>
+              {manageErrorMessage && (
+                <p className="text-red-500 mb-4">{manageErrorMessage}</p>
+              )}
+              <button type="submit" className="w-full bg-green-500 text-white py-2 rounded">
+                Find Booking
+              </button>
+            </form>
+            {bookingDetails && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold">Booking Details:</h3>
+                <p className="mt-2"><strong>Booking ID:</strong> {bookingDetails.id}</p>
+                <p><strong>Name:</strong> {bookingDetails.name}</p>
+                <p><strong>Route:</strong> {bookingDetails.route}</p>
+                <p><strong>Date:</strong> {bookingDetails.date}</p>
+                <p><strong>Arrival Time:</strong> {bookingDetails.arrivalTime}</p>
+                <div className="flex justify-center mt-4">
+                  <QRCode
+                    value={generateQRCodeContent(bookingDetails)}
+                    size={128}
+                    className="mx-auto"
+                  />
+                </div>
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={downloadQRCode}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Download QR Code
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

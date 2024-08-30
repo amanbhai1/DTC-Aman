@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const RouteDetails = () => {
+const BusSchedule = () => {
   const [busId, setBusId] = useState('');
   const [routeDetails, setRouteDetails] = useState({
     routeName: '',
@@ -37,7 +37,7 @@ const RouteDetails = () => {
       const data = response.data;
 
       if (data) {
-        // Transform data to match expected format
+        
         const transformedData = {
           routeName: data.route_name || 'No Route Name',
           routeShortName: data.route_short_name || 'No Short Name',
@@ -61,7 +61,7 @@ const RouteDetails = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-800 text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
+    <div className="p-12 w-2/3 m-auto  bg-gray-800 text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out transform">
       <h2 className="text-2xl font-bold mb-4 animate-bounce">Bus Details</h2>
       <p className="mb-4">Enter the bus ID to view the details:</p>
       <input
@@ -97,4 +97,4 @@ const RouteDetails = () => {
   );
 };
 
-export default RouteDetails;
+export default BusSchedule;

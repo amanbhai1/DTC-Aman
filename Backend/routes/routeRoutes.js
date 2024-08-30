@@ -1,9 +1,7 @@
-// routes/routeRoutes.js
 import { Router } from 'express';
 const router = Router();
 import { findOne } from '../models/Route';
 
-// Get route details by route_id
 router.get('/:route_id', async (req, res) => {
   try {
     const route = await findOne({ route_id: req.params.route_id });

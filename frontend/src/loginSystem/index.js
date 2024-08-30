@@ -1,4 +1,3 @@
-// src/loginSystem/index.js
 export { default as AdminDashboard } from './AdminDashboard';
 export { default as AdminLogin } from './AdminLogin';
 export { default as CrewLogin } from './CrewLogin';

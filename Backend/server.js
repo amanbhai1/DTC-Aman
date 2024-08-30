@@ -9,26 +9,21 @@ import authMiddleware from './middleware/authMiddleware.js';
 import crewRoutes from './routes/crew.js';
 import path from 'path';
 import http from 'http';
-import { Server as SocketIO } from 'socket.io'; // Correct ES module import
+import { Server as SocketIO } from 'socket.io';
 
-// Initialize environment variables
 dotenv.config();
 
-// Initialize Express app and server
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIO(server);
 
-// Middleware
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(path.resolve(), 'public'))); // Serve static files
+app.use(express.static(path.join(path.resolve(), 'public')));
 
-// Set view engine
 app.set('view engine', 'ejs');
 
-// Socket.io Setup
 io.on('connection', (socket) => {
     console.log('A user connected');
 
@@ -42,7 +37,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Define Schemas and Models
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -53,7 +47,7 @@ const User = mongoose.model('User', userSchema);
 const otpSchema = new mongoose.Schema({
     email: { type: String, required: true },
     code: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now, expires: '10m' }, // OTP expires after 10 minutes
+    createdAt: { type: Date, default: Date.now, expires: '10m' },
 });
 
 const OTP = mongoose.model('OTP', otpSchema);
@@ -105,7 +99,6 @@ const routeSchema = new mongoose.Schema({
 
 const RouteDetails = mongoose.model('RouteDetails', routeSchema);
 
-// Connect to MongoDB
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {
@@ -120,7 +113,6 @@ const connectDB = async () => {
 };
 connectDB();
 
-// API Endpoints
 app.get('/crew/trace', (_req, res) => {
     res.render('index');
 });
@@ -129,13 +121,13 @@ app.use('/api/crew', crewRoutes);
 
 app.get('/api/bus-stops/nearby', async (req, res) => {
     const { lat, lng, radius } = req.query;
-    const maxDistance = parseFloat(radius) || 300; // Default radius
+    const maxDistance = parseFloat(radius) || 300;
 
     try {
         const busStops = await BusStop.find({
             location: {
                 $geoWithin: {
-                    $centerSphere: [[lng, lat], maxDistance / 6378.1], // Convert radius to radians
+                    $centerSphere: [[lng, lat], maxDistance / 6378.1],
                 },
             },
         });
@@ -149,7 +141,6 @@ app.get('/api/stops', async (req, res) => {
     const query = req.query.query;
   
     try {
-      // Replace with actual logic to fetch bus stops from your database
       const stops = await Stop.find({ stop_name: { $regex: query, $options: 'i' } });
   
       if (!stops.length) {
@@ -318,19 +309,16 @@ app.post("/api/forgot-password/reset-password", async (req, res) => {
     }
 });
 
-// 404 Error Handling
 app.use((_req, res, _next) => {
     res.status(404).json({ message: "Route not found" });
 });
 
-// General Error Handling
 app.use((err, _req, res, _next) => {
     console.error(err.stack);
     res.status(500).json({ message: "Internal server error" });
 });
 
-// Start Server
 const PORT = process.env.PORT || 9002;
-server.listen(PORT, () => {
+server.listen(PORT,'0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

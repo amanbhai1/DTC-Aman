@@ -5,47 +5,45 @@ import { NavLink } from "react-router-dom";
 import axios from 'axios';
 
 const ForgotPassword = () => {
-  const [step, setStep] = useState("email"); // 'email', 'otp', 'new-password', 'success'
+  const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState(""); // To display error messages
+  const [error, setError] = useState("");
 
-  // Request OTP
   const handleRequestOTP = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:9002/api/forgot-password/request-otp", { email });
+      await axios.post("http://52.66.45.131:9002/api/forgot-password/request-otp", { email });
       setStep("otp");
-      setError(""); // Clear previous errors
+      setError(""); 
     } catch (error) {
       setError(error.response?.data?.message || "Failed to send OTP");
     }
   };
 
-  // Verify OTP
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:9002/api/forgot-password/verify-otp", { email, otp });
-      localStorage.setItem("resetToken", response.data.token); // Store token for password reset
+      const response = await axios.post("http://52.66.45.131:9002/api/forgot-password/verify-otp", { email, otp });
+      localStorage.setItem("resetToken", response.data.token); 
       setStep("new-password");
-      setError(""); // Clear previous errors
+      setError(""); 
     } catch (error) {
       setError(error.response?.data?.message || "Failed to verify OTP");
     }
   };
 
-  // Reset Password
+  
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (newPassword === confirmPassword) {
       try {
         const token = localStorage.getItem("resetToken");
-        await axios.post("http://localhost:9002/api/forgot-password/reset-password", { token, newPassword });
+        await axios.post("http://52.66.45.131:9002/api/forgot-password/reset-password", { token, newPassword });
         setStep("success");
-        setError(""); // Clear previous errors
+        setError("");
       } catch (error) {
         setError(error.response?.data?.message || "Failed to reset password");
       }

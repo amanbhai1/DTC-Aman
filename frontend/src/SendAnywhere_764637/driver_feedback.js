@@ -56,16 +56,16 @@ const App = () => {
   const [amount, setAmount] = useState('');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false); // New state
-  const navigate = useNavigate(); // Hook for navigation
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false); 
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (paymentProcessing) {
       const timer = setTimeout(() => {
         setPaymentProcessing(false);
         setShowCheckmark(true);
-        setShowSuccessMessage(true); // Show success message
-      }, 3000); // Simulates 3 seconds of processing
+        setShowSuccessMessage(true); 
+      }, 3000); 
       return () => clearTimeout(timer);
     }
   }, [paymentProcessing]);
@@ -76,7 +76,7 @@ const App = () => {
         driver.id === id ? { ...driver, rating: newRating } : driver
       )
     );
-    setSelectedDriverId(id); // Show textarea for this driver
+    setSelectedDriverId(id); 
   };
 
   const handleFeedbackChange = (id, feedback) => {
@@ -111,8 +111,8 @@ const App = () => {
   };
 
   const handleCloseSuccessMessage = () => {
-    setShowSuccessMessage(false); // Hide the success message
-    navigate('/driving-page'); // Navigate to driving page
+    setShowSuccessMessage(false); 
+    navigate('/driving-page'); 
   };
 
   return (

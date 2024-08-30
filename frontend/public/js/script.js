@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import L from 'leaflet';
 import io from 'socket.io-client';
-import './style.css'; // Make sure your CSS is correctly imported
+import './style.css';
 
 const MapView = () => {
     useEffect(() => {
-        const socket = io('http://localhost:9002'); // Update with your server URL if different
+        const socket = io('http://52.66.45.131:9002');
 
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(
@@ -26,7 +26,7 @@ const MapView = () => {
             console.log("Geolocation is not supported by this browser.");
         }
 
-        const map = L.map("map").setView([51.505, -0.09], 13); // Set default location and zoom level
+        const map = L.map("map").setView([51.505, -0.09], 13);
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "Automatic Bus Scheduler"

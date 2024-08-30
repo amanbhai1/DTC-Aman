@@ -55,15 +55,15 @@ const PassengerFeedback = () => {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false); // New state
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (paymentProcessing) {
       const timer = setTimeout(() => {
         setPaymentProcessing(false);
         setShowCheckmark(true);
-        setShowSuccessMessage(true); // Show success message
-      }, 3000); // Simulates 3 seconds of processing
+        setShowSuccessMessage(true); 
+      }, 3000); 
       return () => clearTimeout(timer);
     }
   }, [paymentProcessing]);

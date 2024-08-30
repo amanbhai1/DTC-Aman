@@ -6,7 +6,6 @@ const crewSchema = new mongoose.Schema({
   password: { type: String, required: true }
 });
 
-// Hash the password before saving the user
 crewSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   
@@ -19,7 +18,6 @@ crewSchema.pre('save', async function (next) {
   }
 });
 
-// Method to compare password
 crewSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };

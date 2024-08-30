@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AiOutlineClockCircle, AiOutlineUser } from 'react-icons/ai';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link } from 'react-router-dom'; 
 
 const Blogs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +22,6 @@ const Blogs = () => {
       date: 'August 26, 2024',
       image: 'https://images.unsplash.com/photo-1496345875659-11f7dd282d1d?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fG1lbiUyMHRha2luZyUyMHNlbGZpZXxlbnwwfHwwfHx8MA%3D%3D',
     },
-    // Add more posts here...
   ];
 
   const filteredPosts = blogPosts.filter(post =>

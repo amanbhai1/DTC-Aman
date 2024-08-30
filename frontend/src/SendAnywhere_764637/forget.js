@@ -8,7 +8,7 @@ import { faEnvelope,faKey,faLock} from '@fortawesome/free-solid-svg-icons';
 let root=ReactDOM.createRoot(document.querySelector("div.main"));
 
 const ForgotPassword = () => {
-  const [step, setStep] = useState('email'); // 'email', 'otp', 'new-password', 'success'
+  const [step, setStep] = useState('email'); 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -16,14 +16,12 @@ const ForgotPassword = () => {
 
   const handleRequestOTP = (e) => {
     e.preventDefault();
-    // Here, you would send a request to your backend to generate and send an OTP
     console.log('Sending OTP to:', email);
     setStep('otp');
   };
 
   const handleVerifyOTP = (e) => {
     e.preventDefault();
-    // Here, you would send the OTP to your backend for verification
     console.log('Verifying OTP for:', email, 'OTP:', otp);
     setStep('new-password');
   };
@@ -31,7 +29,6 @@ const ForgotPassword = () => {
   const handleResetPassword = (e) => {
     e.preventDefault();
     if (newPassword === confirmPassword) {
-      // Here, you would send the new password to your backend to reset it
       console.log('Resetting password for:', email, 'New Password:', newPassword);
       setStep('success');
     } else {

@@ -22,7 +22,7 @@ const HomePage = () => {
 
     return (
         <div className="h-auto bg-gray-900 text-white overflow-hidden flex flex-col gap-8">
-            {/* Hero Section */}
+            {}
             <div className="relative flex flex-col lg:flex-row items-center justify-center gap-8 p-4 lg:p-24 bg-gray-900 rounded-lg shadow-lg m-4 lg:m-10 h-auto mt-24 sm:p-8">
                 <div className="w-full lg:w-4/6 text-center lg:text-left flex sm:flex-col max-sm:flex-col max-sm:p-4 justify-center items-center gap-8 ">
                     <h1 className="font-bold text-2xl max-sm:text-4xl sm:text-4xl sm:mt-12 max-sm:w-3/3 lg:text-4xl xl:text-5xl mb-4 max-sm:mt-8">
@@ -42,7 +42,7 @@ const HomePage = () => {
             </div>
 
 
-            {/* Call-to-Action */}
+            {}
             <div className="bg-gray-800 text-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-10 m-4  w-3/4 mx-auto border-2 border-blue-400">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 text-center">Ready to Experience Top-Quality Bus Services?</h2>
                 <p className="text-base sm:text-lg mb-4 text-center">
@@ -55,9 +55,9 @@ const HomePage = () => {
                 </div>
             </div>
 
-            {/* Main Content Section */}
+            {}
             <div className="p-6 sm:p-6 lg:p-10 space-y-8 sm:space-y-12">
-                {/* RouteDetails Component */}
+                {}
                 <div className="bg-gray-900 shadow-lg p-4  sm:p-6 relative border-b border-gray-600 ">
                     <div className='flex flex-wrap gap-4 items-center max-sm:flex-col max-sm:justify-center'>
                         <RiCompassDiscoverLine
@@ -107,7 +107,7 @@ const HomePage = () => {
 
 
 
-                {/* Feature Highlights */}
+                {}
                 <div className="p-4 sm:p-6 lg:p-10 bg-gray-800  rounded-lg shadow-lg m-4 lg:m-10 bg-gradient-to-r from-slate-900 via-slate-800 to-gray-900">
                     <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">Why Choose Us?</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -142,7 +142,7 @@ const HomePage = () => {
                     </div>
                 </div>
 
-            {/* TripPlanner Component */}
+            {}
         <div className="bg-gray-900 rounded-lg shadow-lg p-4 max-sm:p-4 sm:p-12 relative">
             <div className='flex gap-8 max-sm:justify-center items-center mb-8'>
             <FaCalendarDay className="text-blue-500 text-5xl sm:text-6xl" />
@@ -154,7 +154,7 @@ const HomePage = () => {
           <TripPlanner />
         </div>
 
-                {/* Navigation Directions */}
+                {}
             
             </div>
         </div>

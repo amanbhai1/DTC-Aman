@@ -13,7 +13,6 @@ const TrackBus = () => {
       setErrorMessage('Please enter a valid Bus ID.');
     } else {
       setErrorMessage('');
-      // Simulate bus tracking logic here
       const mockResult = {
         id: busId,
         location: 'Connaught Place, New Delhi',

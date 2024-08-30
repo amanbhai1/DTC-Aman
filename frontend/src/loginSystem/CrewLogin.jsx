@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const CrewLogin = () => {
@@ -16,7 +16,7 @@ const CrewLogin = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); 
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -25,15 +25,13 @@ const CrewLogin = () => {
       setErrorMessage("Please fill in all fields.");
     } else {
       if (username === "crew" && password === "crew") {
-        // If username and password are "crew", navigate to admin dashboard
-        navigate('/crew/crewDashboard');
+        navigate('/crew/crewDashboard')
       } else {
         setErrorMessage("Invalid username or password.");
       }
     }
   };
 
-  // Other functions remain the same...
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 px-4">

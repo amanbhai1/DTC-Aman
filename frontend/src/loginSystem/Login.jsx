@@ -49,7 +49,7 @@ const LoginForm = ({ navigate }) => {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:9002/login', {
+            const response = await fetch('http://52.66.45.131:9002/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,12 +117,12 @@ const SignupForm = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(''); // Add state for success message
+    const [success, setSuccess] = useState(''); 
 
     const handleSignup = async (e) => {
         e.preventDefault();
         setError('');
-        setSuccess(''); // Clear previous success message
+        setSuccess(''); 
 
         if (password !== confirmPassword) {
             setError('Passwords do not match');
@@ -130,7 +130,7 @@ const SignupForm = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:9002/signup', {
+            const response = await fetch('http://52.66.45.131:9002/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ const SignupForm = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setSuccess('Signup successful!'); // Set success message
+                setSuccess('Signup successful!'); 
             } else {
                 setError(data.message || 'An error occurred');
             }

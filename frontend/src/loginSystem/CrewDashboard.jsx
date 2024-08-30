@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import "leaflet/dist/leaflet.css";
-import L from 'leaflet';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const CrewDashboard = () => {
-  const [username, setUsername] = useState("John Doe");
+  const [username, setUsername] = useState("Satyam Yadav");
   const [assignedBuses, setAssignedBuses] = useState([]);
   const [guidelines, setGuidelines] = useState([]);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [trackerData, setTrackerData] = useState(null);
+  const [qrCodeData, setQrCodeData] = useState('');
+  const [showQrScanner, setShowQrScanner] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
-  const MAPBOX_API_KEY = 'pk.eyJ1IjoiYW1hbmd1cHRhMTIxIiwiYSI6ImNtMGUzNDEyMzBqc2oya3NjY3E3cWRyd3kifQ.77WQk0FBICCtjCWqF_GStA'; // Replace with your Mapbox API key
+  const qrScannerRef = useRef(null); 
 
   useEffect(() => {
-    // Fetch user's location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setLatitude(latitude);
           setLongitude(longitude);
-
-          // Add user's location as a marker
-          setMarkers((prevMarkers) => [
-            ...prevMarkers,
-            { id: 'user', latitude, longitude, label: 'Your Location' },
-          ]);
         },
         (error) => {
           console.error("Error obtaining location: ", error);
@@ -39,7 +30,6 @@ const CrewDashboard = () => {
       console.log("Geolocation is not supported by this browser.");
     }
 
-    // Mock Data for Assigned Buses and Guidelines
     setAssignedBuses([
       { id: 1, busNumber: 'DL 5C 1234', route: 'New Delhi to Gurgaon', shift: 'Morning', departure: '6:00 AM', arrival: '8:00 AM' },
       { id: 2, busNumber: 'DL 9B 5678', route: 'Connaught Place to Noida', shift: 'Evening', departure: '5:00 PM', arrival: '7:00 PM' },
@@ -52,44 +42,91 @@ const CrewDashboard = () => {
       "Keep the bus clean and maintain a professional attitude."
     ]);
 
-    // Additional Markers Data
-    const additionalMarkers = [
-      { id: 2, latitude: 28.6139, longitude: 77.209, label: 'New Delhi' },
-      { id: 3, latitude: 28.4595, longitude: 77.0266, label: 'Gurgaon' },
-      { id: 4, latitude: 28.5355, longitude: 77.391, label: 'Noida' }
-    ];
-    setMarkers((prevMarkers) => [...prevMarkers, ...additionalMarkers]);
-
-    // Fetch data from the external real-time tracker API
-    const fetchTrackerData = async () => {
-      try {
-        const response = await axios.get('https://realtime-tracker-main-muk0.onrender.com/api/tracker'); // Replace with actual API endpoint
-        setTrackerData(response.data);
-      } catch (error) {
-        console.error("Error fetching tracker data: ", error);
-      }
+    return () => {
+      stopQrScanner();
     };
-
-    fetchTrackerData();
   }, []);
 
-  // Define a custom icon if needed (otherwise, Leaflet's default icon will be used)
-  const defaultIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet marker icon
-    iconSize: [25, 41], // Size of the icon
-    iconAnchor: [12, 41], // Anchor point of the icon
-    popupAnchor: [1, -34] // Point from which the popup should open relative to the icon
-  });
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('Latitude:', position.coords.latitude);
+          console.log('Longitude:', position.coords.longitude);
+        },
+        (error) => {
+          console.error('Error obtaining location:', error);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+  }, []);
+
+  const startQrScanner = () => {
+    setShowQrScanner(true);
+    setIsScanning(true);
+
+    setTimeout(() => {
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+      qrScannerRef.current = new Html5QrcodeScanner("qr-reader", config, false);
+      qrScannerRef.current.render(
+        (decodedText, decodedResult) => {
+          console.log(`QR Code detected: ${decodedText}`);
+          setQrCodeData(decodedText);
+          setIsScanning(false);
+          qrScannerRef.current.clear();
+        },
+        (error) => {
+          console.error(`QR Code scan error: ${error}`);
+        }
+      );
+    }, 100);
+  };
+
+  const stopQrScanner = () => {
+    if (qrScannerRef.current) {
+      qrScannerRef.current.clear();
+      qrScannerRef.current = null;
+    }
+    setShowQrScanner(false);
+    setIsScanning(false);
+  };
+
+  const isValidURL = (str) => {
+    const pattern = new RegExp('^(https?:\\/\\/)?'+ 
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ 
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ 
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ 
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ 
+      '(\\#[-a-z\\d_]*)?$','i');
+    return !!pattern.test(str);
+  };
+
+  const renderQrCodeData = (data) => {
+    if (isValidURL(data)) {
+      return (
+        <a 
+          href={data} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-blue-400 underline hover:text-blue-600"
+        >
+          {data}
+        </a>
+      );
+    }
+    return <p className="text-white">{data}</p>;
+  };
 
   return (
     <div className="min-h-screen bg-[#1F2937] text-white p-6">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Username Display */}
         <div className="text-center">
           <h1 className="text-4xl font-semibold mb-2">Welcome, {username}</h1>
         </div>
 
-        {/* Display User's Location */}
         <div className="text-center mb-6">
           {latitude && longitude ? (
             <p className="text-lg">Your current location: <span className="font-bold text-yellow-400">Latitude:</span> {latitude.toFixed(4)}, <span className="font-bold text-yellow-400">Longitude:</span> {longitude.toFixed(4)}</p>
@@ -98,71 +135,80 @@ const CrewDashboard = () => {
           )}
         </div>
 
-        {/* Map Section */}
-        {latitude && longitude && (
-          <div className="mb-8">
-            <MapContainer center={[latitude, longitude]} zoom={13} style={{ height: "400px", width: "100%" }}>
-              <TileLayer
-                url={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${MAPBOX_API_KEY}`}
-                attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> contributors'
-              />
-              {/* Add markers dynamically */}
-              {markers.map((marker) => (
-                <Marker
-                  key={marker.id}
-                  position={[marker.latitude, marker.longitude]}
-                  icon={defaultIcon} // Use default or custom icon here
-                >
-                  <Popup>
-                    <div className="text-sm">
-                      <p><span className="font-semibold">{marker.label}</span></p>
-                      <p><span className="font-semibold">Latitude:</span> {marker.latitude.toFixed(4)}</p>
-                      <p><span className="font-semibold">Longitude:</span> {marker.longitude.toFixed(4)}</p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-        )}
-
-        {/* Assigned Buses Section */}
-        <div>
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-600 pb-2">Assigned Buses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {assignedBuses.map((bus) => (
-              <div key={bus.id} className="p-6 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition transform hover:scale-105 duration-300 ease-in-out">
-                <h3 className="text-2xl font-bold mb-4 text-blue-400">Bus Number: {bus.busNumber}</h3>
-                <p className="mb-2"><span className="font-semibold text-green-400">Route:</span> {bus.route}</p>
-                <p className="mb-2"><span className="font-semibold text-yellow-400">Shift:</span> {bus.shift}</p>
-                <p className="mb-2"><span className="font-semibold text-red-400">Departure Time:</span> {bus.departure}</p>
-                <p><span className="font-semibold text-purple-400">Arrival Time:</span> {bus.arrival}</p>
-              </div>
-            ))}
-          </div>
+        <div className="text-center">
+          <h2 className="text-3xl font-semibold mb-4">Scan QR Code</h2>
+          {!isScanning && (
+            <button 
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={startQrScanner}
+            >
+              Start QR Scanner
+            </button>
+          )}
+          {isScanning && (
+            <button 
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              onClick={stopQrScanner}
+            >
+              Stop QR Scanner
+            </button>
+          )}
+          {showQrScanner && (
+            <div id="qr-reader" className="mt-4"></div>
+          )}
+          {qrCodeData && (
+            <div className="mt-4 text-center">
+              <h3 className="text-xl font-semibold mb-2">QR Code Data</h3>
+              {renderQrCodeData(qrCodeData)}
+            </div>
+          )}
         </div>
 
-        {/* Guidelines Section */}
-        <div>
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-600 pb-2">Guidelines</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Assigned Buses</h2>
+          <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b border-gray-700">Bus Number</th>
+                <th className="py-2 px-4 border-b border-gray-700">Route</th>
+                <th className="py-2 px-4 border-b border-gray-700">Shift</th>
+                <th className="py-2 px-4 border-b border-gray-700">Departure</th>
+                <th className="py-2 px-4 border-b border-gray-700">Arrival</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignedBuses.map(bus => (
+                <tr key={bus.id}>
+                  <td className="py-2 px-4 border-b border-gray-700">{bus.busNumber}</td>
+                  <td className="py-2 px-4 border-b border-gray-700">{bus.route}</td>
+                  <td className="py-2 px-4 border-b border-gray-700">{bus.shift}</td>
+                  <td className="py-2 px-4 border-b border-gray-700">{bus.departure}</td>
+                  <td className="py-2 px-4 border-b border-gray-700">{bus.arrival}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Guidelines</h2>
           <ul className="list-disc list-inside space-y-2">
             {guidelines.map((guideline, index) => (
-              <li key={index} className="text-lg">{guideline}</li>
+              <li key={index}>{guideline}</li>
             ))}
           </ul>
         </div>
-
-        {/* External Tracker Data Section */}
-        <div className="mt-8">
-          <h2 className="text-3xl font-semibold mb-4 border-b border-gray-600 pb-2">Real-Time Tracker Data</h2>
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            {trackerData ? (
-              <pre className="whitespace-pre-wrap">{JSON.stringify(trackerData, null, 2)}</pre>
-            ) : (
-              <p>Loading tracker data...</p>
-            )}
-          </div>
-        </div>
+      </div>
+      <div className="iframe-container mt-8">
+        <iframe
+          src="https://realtime-tracker-main-muk0.onrender.com/"
+          title="Location Permission Iframe"
+          width="100%"
+          height="500px"
+          style={{ border: '0' }}
+          allow="geolocation" // Allow iframe to access geolocation
+          sandbox="allow-scripts allow-same-origin allow-forms"
+        ></iframe>
       </div>
     </div>
   );

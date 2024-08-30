@@ -1,4 +1,3 @@
-// src/pages/index.js
 export { default as About } from './About';
 export { default as BlogDetails } from './BlogDetails';
 export { default as Blogs } from './Blogs';
